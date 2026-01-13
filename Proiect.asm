@@ -61,8 +61,33 @@ conversie_loop:
     stosb
     loop conversie_loop
 
+    ;   cuvantul C: bitii 0-3: XOR, 4-7: OR, 8-15: suma modulo 256 
+    lea si, valori
+    mov cl, nr_octeti
+    call CALCUL_C
+    mov C_rez, ax    
 
-;afisare cuvantul C
+    ;   sortare descrescatoare folosind BUBBLE SORT
+    mov cl, nr_octeti
+    dec cl              ; pentru n elemente facem n-1 comparatii
+
+sort_i:
+    push cx             ; salvam  primul contor pentru a nu l distruge in urmatorul loop
+    lea si, valori
+    mov cl, nr_octeti
+    dec cl
+
+sort_j:
+    mov al, [si]
+    mov bl, [si+1]      ; luam octeti consecutivi
+    cmp al, bl
+    jae no_swap       ; pentru egalitate nu trebuie modificat
+    
+    mov [si], bl    
+    mov [si+1], al  
+
+
+	;afisare cuvantul C
     mov dx, offset msg2
     mov ah, 09h
     int 21h
@@ -76,19 +101,64 @@ conversie_loop:
     lea si, valori
     mov cl, nr_octeti
     xor ch, ch
-afis_sort: 
+	afis_sort: 
     lodsb 
     call print_bin8 
     loop afis_sort
 
-exit:
-    mov ax, 4C00h
-    int 21h
 
+exit:
+     mov ax, 4C00h
+     int 21h
 
 ;----------------------------------------------
 
-
+CALCUL_C PROC
+    push bx
+    push cx
+    push dx
+    push si
+    
+    xor dx, dx          ; DH = Suma, DL = OR
+    mov bl, cl          ; Salvam nr_octeti original in BL
+    xor ch, ch          ; Ne asiguram ca CH e zero pentru loop
+    
+calc_l:
+    lodsb
+    add dh, al
+    mov ah, al
+    and ah, 3Ch
+    or dl, ah
+    loop calc_l
+    
+    shr dl, 2
+    shl dl, 4
+    
+    ; Resetam SI la inceputul sirului 'valori'
+    sub si, bx          
+    
+    mov al, [si]        ; Primul element
+    and al, 0Fh
+    
+    xor bh, bh
+    add si, bx
+    dec si              ; SI la ultimul element
+    
+    mov ah, [si]
+    shr ah, 4
+    
+    xor al, ah
+    and al, 0Fh
+    or al, dl           ; Rezultat AL final
+    
+    mov ah, dh          ; Suma in AH
+    
+    pop si
+    pop dx
+    pop cx
+    pop bx
+    ret
+CALCUL_C ENDP
 
 VALIDARE_SI_EXIT proc
     mov al, input_buffer[1]
@@ -165,7 +235,7 @@ CURATA_BUFFER proc
     mov input_buffer, 50
 
     pop di
-    pop cx
+    pop cxs
     pop ax
     ret
 CURATA_BUFFER endp
