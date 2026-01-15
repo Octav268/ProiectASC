@@ -45,3 +45,8 @@ Rezultatele intermediare și finale sunt afișate atât în formate **binar**, c
 ### 3.3. Managementul codului și reutilizarea
 - **Provocare**: codul pentru afișarea rezultatelor era redundant.
 - **Soluție**: arhitectură modulară, cu funcții de bază pentru afișarea unui octet, extinse pentru afișarea șirurilor și valorilor pe 16 biți. Salvarea și restaurarea registrelor interne a prevenit conflictele în bucle.
+
+## Studenti
+- Istrate Octavian: Citire/Validare
+- Mich Camelia: Calculul cuvantului C, sortare
+- Muncuș Tudor: Gasirea maximului aparitiilor lui 1, rotiri
