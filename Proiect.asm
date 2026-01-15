@@ -27,6 +27,7 @@ code segment
 start:
     mov ax, data
     mov ds, ax
+    mov es, ax
 
 citire:
     call CURATA_BUFFER      ; pentru citiri repetate
@@ -96,6 +97,7 @@ no_swap:
     mov max_bits, 0
     lea si, valori
     mov cl, nr_octeti
+    xor ch, ch
     xor bx, bx        ; bl = pozitia curenta
 find_max:
     mov al, [si]
@@ -168,21 +170,26 @@ afis_sort:
     call print_bin8
 
     ;pozitia
-    mov dx, offset msg5
-    mov ah, 09h
-    int 21h
     mov al, pos_max_bits
-    mov ah, 0
-    mov bl, 10
-    div bl           ; AL = zeci, AH = unități
+    xor ah, ah
+    cmp al, 10
+    jb print_unit       ; dacă <10, afișăm direct
 
+    ; calcul zecilor și unităților
+    mov bl, 10
+    div bl              ; AL = catul (zecile), AH = restul (unitățile)
+
+    ; afișăm zecile
     add al, '0'
     mov dl, al
     mov ah, 02h
     int 21h
 
-    add ah, '0'
-    mov dl, ah
+    ; afișăm unitățile
+    mov al, ah          ; AH = restul din div
+    print_unit:
+    add al, '0'
+    mov dl, al
     mov ah, 02h
     int 21h
 
